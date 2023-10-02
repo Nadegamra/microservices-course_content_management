@@ -1,51 +1,69 @@
-using System.Net.NetworkInformation;
-using System.Buffers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using CourseContentManagement.Data;
+using Microsoft.EntityFrameworkCore;
+using Services.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 // Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-
-builder.Services.AddAuthentication(options =>
+var services = builder.Services;
 {
+
+  // Cors
+  services.AddCors((options) =>
+    {
+      options.AddDefaultPolicy(policy =>
+      {
+        policy.WithOrigins("https://localhost:3000", "http://localhost:3000")
+          .AllowAnyHeader()
+          .AllowAnyMethod()
+          .AllowCredentials();
+      });
+    });
+
+  // Setup Controllers
+  builder.Services.AddControllers();
+  builder.Services.AddEndpointsApiExplorer();
+
+  // Authorization
+  builder.Services.AddAuthentication(options =>
+  {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
+  })
+  .AddJwtBearer(options =>
+  {
     options.SaveToken = true;
     options.RequireHttpsMetadata = false;
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        ClockSkew = TimeSpan.Zero,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
+      ValidateIssuer = false,
+      ValidateAudience = false,
+      ClockSkew = TimeSpan.Zero,
+      IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
     };
-});
+  });
 
-builder.Services.AddSwaggerGen(c =>
-{
+  // Swagger
+  builder.Services.AddSwaggerGen(c =>
+  {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "My API",
-        Version = "v1"
+      Title = "My API",
+      Version = "v1"
     });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Type = SecuritySchemeType.Http,
-        BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Scheme = "bearer",
-        Description = "Please insert JWT with Bearer into field",
+      Type = SecuritySchemeType.Http,
+      BearerFormat = "JWT",
+      In = ParameterLocation.Header,
+      Scheme = "bearer",
+      Description = "Please insert JWT with Bearer into field",
     });
     c.AddSecurityRequirement(new OpenApiSecurityRequirement {
    {
@@ -59,22 +77,31 @@ builder.Services.AddSwaggerGen(c =>
       },
       new string[] { }
     }
+    });
   });
-});
 
+  // Database
+  string connectionString = builder.Configuration.GetSection("Database")["ConnectionString"];
+  services.AddDbContext<CourseContentDbContext>(options =>
+      options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+
+  // Event Bus
+  ConfigureServices.AddEventBus(builder);
+}
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
 {
+  if (app.Environment.IsDevelopment())
+  {
     app.UseSwagger();
     app.UseSwaggerUI();
+  }
+
+  app.UseHttpsRedirection();
+
+  app.UseAuthorization();
+
+  app.MapControllers();
+
+  var eventBus = app.Services.GetRequiredService<Infrastructure.EventBus.Generic.IEventBus>();
 }
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
 app.Run();
