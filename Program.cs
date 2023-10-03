@@ -99,6 +99,11 @@ var services = builder.Services;
 
   // Event Bus
   ConfigureServices.AddEventBus(builder);
+
+
+  services.AddTransient<CourseCreatedIntegrationEventHandler>();
+  services.AddTransient<CourseDeletedIntegrationEventHandler>();
+  services.AddTransient<CourseUpdatedIntegrationEventHandler>();
 }
 var app = builder.Build();
 {

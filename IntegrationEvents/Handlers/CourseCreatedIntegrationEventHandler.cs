@@ -23,7 +23,7 @@ namespace CourseContentManagement.IntegrationEvents.Handlers
             Course? course = dbContext.Courses.Where(x => x.Id == @event.Id).FirstOrDefault();
             if (course == null)
             {
-                course = new Course { Id = @event.Id, UserId = @event.UserId, IsHidden = false, IsDeleted = false };
+                course = new Course { Id = @event.Id, UserId = @event.UserId, IsHidden = true, IsDeleted = false };
 
                 await dbContext.Courses.AddAsync(course);
                 await dbContext.SaveChangesAsync();

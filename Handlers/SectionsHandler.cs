@@ -46,7 +46,7 @@ namespace CourseContentManagement.Handlers
                 throw new Exception("Section does not exist");
             }
 
-            Section section = new Section { Name = req.Name, Description = req.Description, IsHidden = req.IsHidden };
+            Section section = new Section { Name = req.Name, Description = req.Description, IsHidden = req.IsHidden ?? original.IsHidden };
             foreach (var pair in typeof(Section).GetProperties())
             {
                 var value = pair.GetValue(section);

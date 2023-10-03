@@ -51,7 +51,7 @@ namespace CourseContentManagement.Handlers
 
             IsUserSectionOwnerCheck(userId, original.SectionId);
 
-            InfoPage updated = new InfoPage { Name = req.Name, Text = req.Text, IsHidden = req.IsHidden };
+            InfoPage updated = new InfoPage { Name = req.Name, Text = req.Text, IsHidden = req.IsHidden ?? original.IsHidden };
             foreach (var pair in typeof(InfoPage).GetProperties())
             {
                 var value = pair.GetValue(updated);
