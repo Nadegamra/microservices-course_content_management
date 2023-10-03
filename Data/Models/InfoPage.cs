@@ -9,6 +9,6 @@ namespace CourseContentManagement.Data.Models
         public int SectionId { get; set; }
         public string? Name { get; set; }
         public string? Text { get; set; }
-        public bool? IsHidden { get; set; }
+        public bool IsHidden { get; set; }
     }
 }

@@ -1,10 +1,7 @@
-using System.Security.Claims;
-using System.Text.Json;
 using CourseContentManagement.Data.DTOs.Section;
 using CourseContentManagement.Data.Models;
 using CourseContentManagement.Handlers;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CourseContentManagement.Controllers
@@ -26,7 +23,7 @@ namespace CourseContentManagement.Controllers
         {
             try
             {
-                return new OkObjectResult(await handler.GetSectionListAsync(courseId));
+                return new OkObjectResult(await handler.GetSectionListAsync(courseId, this.GetUserId()));
             }
             catch (Exception ex)
             {

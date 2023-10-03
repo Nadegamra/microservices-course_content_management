@@ -23,7 +23,7 @@ namespace CourseContentManagement.Controllers
         {
             try
             {
-                return new OkObjectResult(await handler.GetInfoPageListAsync(sectionId));
+                return new OkObjectResult(await handler.GetInfoPageListAsync(sectionId, this.GetUserId()));
             }
             catch (Exception ex)
             {

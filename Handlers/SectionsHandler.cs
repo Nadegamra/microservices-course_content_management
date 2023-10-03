@@ -13,9 +13,17 @@ namespace CourseContentManagement.Handlers
             this.dbContext = dbContext;
         }
 
-        public async Task<List<Section>> GetSectionListAsync(int courseId)
+        public async Task<List<Section>> GetSectionListAsync(int courseId, int userId)
         {
-            return dbContext.Sections.Where(x => x.CourseId == courseId).ToList();
+            Course? course = dbContext.Courses.Where(x => x.Id == courseId).FirstOrDefault();
+
+            bool isOwner = userId == course?.UserId;
+
+            if (course == null || course.IsDeleted || (!isOwner && course.IsHidden))
+            {
+                throw new Exception("Course, associated with this section does not exist");
+            }
+            return dbContext.Sections.Where(x => x.CourseId == courseId || x.IsHidden || (x.IsHidden && isOwner)).ToList();
         }
 
         public async Task<Section> AddSectionAsync(SectionAddRequest req, int userId)

@@ -18,19 +18,17 @@ namespace CourseContentManagement.Handlers
             this.dbContext = dbContext;
         }
 
-        public async Task<List<InfoPage>> GetInfoPageListAsync(int sectionId)
+        public async Task<List<InfoPage>> GetInfoPageListAsync(int sectionId, int userId)
         {
             Course? course = dbContext.Courses.Where(x => x.Id == sectionId).FirstOrDefault();
-            if (course == null)
-            {
-                throw new Exception("Course, associated with this info page does not exist");
-            }
-            if (course.IsHidden || course.IsDeleted)
-            {
-                return new List<InfoPage>();
-            }
 
-            return dbContext.InfoPages.Where(x => x.SectionId == sectionId).ToList();
+            bool isOwner = userId == course?.UserId;
+
+            if (course == null || course.IsDeleted || (!isOwner && course.IsHidden))
+            {
+                throw new Exception("Course, associated with this section does not exist");
+            }
+            return dbContext.InfoPages.Where(x => x.SectionId == sectionId || !x.IsHidden || (x.IsHidden && isOwner)).ToList();
         }
 
         public async Task<InfoPage> AddInfoPageAsync(InfoPageAddRequest req, int userId)
@@ -100,6 +98,30 @@ namespace CourseContentManagement.Handlers
             {
                 throw new Exception("Unauthorized");
             }
+        }
+
+        private bool IsHidden(int infoPageId, int userId)
+        {
+            InfoPage? infoPage = dbContext.InfoPages.Where(x => x.Id == infoPageId).FirstOrDefault();
+            if (infoPage == null)
+            {
+                throw new Exception("This info page does not exist");
+            }
+            Section? section = dbContext.Sections.Where(x => x.Id == infoPage.SectionId).FirstOrDefault();
+            if (section == null)
+            {
+                throw new Exception("The associated section does not exist");
+            }
+            Course? course = dbContext.Courses.Where(x => x.Id == section.CourseId).FirstOrDefault();
+            if (course == null)
+            {
+                throw new Exception("The associated course does not exist");
+            }
+            if (course.IsDeleted)
+            {
+                return true;
+            }
+            return (infoPage.IsHidden || section.IsHidden || course.IsHidden) && userId != course.UserId;
         }
     }
 }
