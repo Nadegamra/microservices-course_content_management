@@ -1,3 +1,4 @@
+using System.Net.NetworkInformation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -5,6 +6,10 @@ using Microsoft.OpenApi.Models;
 using CourseContentManagement.Data;
 using Microsoft.EntityFrameworkCore;
 using Services.Common;
+using CourseContentManagement.Handlers;
+using System.Text.Json.Serialization;
+using CourseContentManagement.IntegrationEvents.Events;
+using CourseContentManagement.IntegrationEvents.Handlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,7 +31,10 @@ var services = builder.Services;
     });
 
   // Setup Controllers
-  builder.Services.AddControllers();
+  builder.Services.AddControllers().AddJsonOptions(x =>
+    x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles
+  );
+
   builder.Services.AddEndpointsApiExplorer();
 
   // Authorization
@@ -85,6 +93,10 @@ var services = builder.Services;
   services.AddDbContext<CourseContentDbContext>(options =>
       options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
+  // Handlers
+  services.AddTransient<SectionsHandler>();
+  services.AddTransient<InfoPagesHandler>();
+
   // Event Bus
   ConfigureServices.AddEventBus(builder);
 }
@@ -103,5 +115,8 @@ var app = builder.Build();
   app.MapControllers();
 
   var eventBus = app.Services.GetRequiredService<Infrastructure.EventBus.Generic.IEventBus>();
+  eventBus.Subscribe<CourseCreatedIntegrationEvent, CourseCreatedIntegrationEventHandler>();
+  eventBus.Subscribe<CourseDeletedIntegrationEvent, CourseDeletedIntegrationEventHandler>();
+  eventBus.Subscribe<CourseUpdatedIntegrationEvent, CourseUpdatedIntegrationEventHandler>();
 }
 app.Run();

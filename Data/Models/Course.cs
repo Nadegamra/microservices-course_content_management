@@ -7,7 +7,7 @@ namespace CourseContentManagement.Data.Models
         [Key]
         public int Id { get; set; }
         public int UserId { get; set; }
-        public required string Name { get; set; }
-        public required string ShortDescription { get; set; }
+        public bool IsHidden { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }
