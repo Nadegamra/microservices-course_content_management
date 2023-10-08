@@ -19,11 +19,26 @@ namespace CourseContentManagement.Controllers
 
         [HttpGet("getList")]
         [AllowAnonymous]
-        public async Task<ActionResult<List<InfoPage>>> GetInfoPageList([FromQuery] int sectionId)
+        public async Task<ActionResult<List<InfoPage>>> GetInfoPageList(int courseId, int sectionId)
         {
             try
             {
-                return new OkObjectResult(await handler.GetInfoPageListAsync(sectionId, this.GetUserId()));
+                return new OkObjectResult(await handler.GetInfoPageListAsync(courseId, sectionId));
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult(ex.Message);
+            }
+        }
+
+
+        [HttpGet("getList/owned")]
+        [Authorize(Roles = "ADMIN, CREATOR")]
+        public async Task<ActionResult<List<InfoPage>>> GetUserInfoPageList(int courseId, int sectionId)
+        {
+            try
+            {
+                return new OkObjectResult(await handler.GetUserInfoPageListAsync(courseId, sectionId, this.GetUserId()));
             }
             catch (Exception ex)
             {
@@ -33,11 +48,11 @@ namespace CourseContentManagement.Controllers
 
         [HttpPost]
         [Authorize(Roles = "ADMIN, CREATOR")]
-        public async Task<ActionResult<InfoPage>> AddInfoPage(InfoPageAddRequest req)
+        public async Task<ActionResult<InfoPage>> AddInfoPage(int sectionId, InfoPageAddRequest req)
         {
             try
             {
-                return new OkObjectResult(await handler.AddInfoPageAsync(req, this.GetUserId()));
+                return new OkObjectResult(await handler.AddInfoPageAsync(sectionId, req, this.GetUserId()));
             }
             catch (Exception ex)
             {
@@ -47,11 +62,11 @@ namespace CourseContentManagement.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = "ADMIN, CREATOR")]
-        public async Task<ActionResult<InfoPage>> UpdateInfoPage(InfoPageUpdateRequest req)
+        public async Task<ActionResult<InfoPage>> UpdateInfoPage(int id, InfoPageUpdateRequest req)
         {
             try
             {
-                return new OkObjectResult(await handler.UpdateInfoPageAsync(req, this.GetUserId()));
+                return new OkObjectResult(await handler.UpdateInfoPageAsync(id, req, this.GetUserId()));
             }
             catch (Exception ex)
             {
@@ -61,7 +76,7 @@ namespace CourseContentManagement.Controllers
 
         [HttpDelete("{id}")]
         [Authorize(Roles = "ADMIN, CREATOR")]
-        public async Task<ActionResult<bool>> DeleteInfoPage([FromQuery] int Id)
+        public async Task<ActionResult<bool>> DeleteInfoPage(int Id)
         {
             try
             {

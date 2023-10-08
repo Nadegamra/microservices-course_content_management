@@ -19,11 +19,24 @@ namespace CourseContentManagement.Controllers
 
         [HttpGet("getList")]
         [AllowAnonymous]
-        public async Task<ActionResult<List<Section>>> GetSectionList([FromQuery] int courseId)
+        public async Task<ActionResult<List<Section>>> GetSectionList(int courseId)
         {
             try
             {
-                return new OkObjectResult(await handler.GetSectionListAsync(courseId, this.GetUserId()));
+                return new OkObjectResult(await handler.GetSectionListAsync(courseId));
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult(ex.Message);
+            }
+        }
+        [HttpGet("getList/owned")]
+        [Authorize(Roles = "ADMIN, CREATOR")]
+        public async Task<ActionResult<List<Section>>> GetUserSectionList(int courseId)
+        {
+            try
+            {
+                return new OkObjectResult(await handler.GetUserSectionListAsync(courseId, this.GetUserId()));
             }
             catch (Exception ex)
             {
@@ -33,11 +46,11 @@ namespace CourseContentManagement.Controllers
 
         [HttpPost]
         [Authorize(Roles = "ADMIN, CREATOR")]
-        public async Task<ActionResult<Section>> AddSection(SectionAddRequest req)
+        public async Task<ActionResult<Section>> AddSection(int courseId, SectionAddRequest req)
         {
             try
             {
-                return new OkObjectResult(await handler.AddSectionAsync(req, this.GetUserId()));
+                return new OkObjectResult(await handler.AddSectionAsync(courseId, req, this.GetUserId()));
             }
             catch (Exception ex)
             {
@@ -47,11 +60,11 @@ namespace CourseContentManagement.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = "ADMIN, CREATOR")]
-        public async Task<ActionResult<Section>> UpdateSection(SectionUpdateRequest req)
+        public async Task<ActionResult<Section>> UpdateSection(int courseId, int id, SectionUpdateRequest req)
         {
             try
             {
-                return new OkObjectResult(await handler.UpdateSectionAsync(req, this.GetUserId()));
+                return new OkObjectResult(await handler.UpdateSectionAsync(courseId, id, req, this.GetUserId()));
             }
             catch (Exception ex)
             {
@@ -61,7 +74,7 @@ namespace CourseContentManagement.Controllers
 
         [HttpDelete("{id}")]
         [Authorize(Roles = "ADMIN, CREATOR")]
-        public async Task<ActionResult<bool>> DeleteSection([FromQuery] int Id)
+        public async Task<ActionResult<bool>> DeleteSection(int Id)
         {
             try
             {

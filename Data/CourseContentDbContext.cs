@@ -1,5 +1,4 @@
 using CourseContentManagement.Data.Models;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace CourseContentManagement.Data
@@ -15,6 +14,12 @@ namespace CourseContentManagement.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Course>().HasData(DefaultData.Courses);
+
+            modelBuilder.Entity<Section>().HasData(DefaultData.Sections);
+
+            modelBuilder.Entity<InfoPage>().HasData(DefaultData.InfoPages);
         }
     }
 }
