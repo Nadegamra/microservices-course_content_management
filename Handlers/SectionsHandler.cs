@@ -12,35 +12,44 @@ namespace CourseContentManagement.Handlers
         {
             this.dbContext = dbContext;
         }
+        public async Task<List<Section>> GetSectionListAsync(int courseId)
+        {
+            Course? course = dbContext.Courses.Where(x => x.Id == courseId).FirstOrDefault();
 
-        public async Task<List<Section>> GetSectionListAsync(int courseId, int userId)
+            if (course == null || course.IsDeleted)
+            {
+                throw new Exception("Course, associated with this section does not exist");
+            }
+            return dbContext.Sections.Where(x => x.CourseId == courseId && !x.IsHidden).ToList();
+        }
+        public async Task<List<Section>> GetUserSectionListAsync(int courseId, int userId)
         {
             Course? course = dbContext.Courses.Where(x => x.Id == courseId).FirstOrDefault();
 
             bool isOwner = userId == course?.UserId;
 
-            if (course == null || course.IsDeleted || (!isOwner && course.IsHidden))
+            if (course == null || course.IsDeleted || !isOwner)
             {
                 throw new Exception("Course, associated with this section does not exist");
             }
-            return dbContext.Sections.Where(x => x.CourseId == courseId || x.IsHidden || (x.IsHidden && isOwner)).ToList();
+            return dbContext.Sections.Where(x => x.CourseId == courseId).ToList();
         }
 
-        public async Task<Section> AddSectionAsync(SectionAddRequest req, int userId)
+        public async Task<Section> AddSectionAsync(int courseId, SectionAddRequest req, int userId)
         {
-            IsUserCourseOwnerCheck(userId, req.CourseId);
+            IsUserCourseOwnerCheck(userId, courseId);
 
-            Section section = new Section { CourseId = req.CourseId, Name = req.Name, Description = req.Description, IsHidden = true };
+            Section section = new Section { CourseId = courseId, Name = req.Name, Description = req.Description, IsHidden = true };
             var res = await dbContext.Sections.AddAsync(section);
             await dbContext.SaveChangesAsync();
             return res.Entity;
         }
 
-        public async Task<Section> UpdateSectionAsync(SectionUpdateRequest req, int userId)
+        public async Task<Section> UpdateSectionAsync(int courseId, int sectionId, SectionUpdateRequest req, int userId)
         {
-            IsUserCourseOwnerCheck(userId, req.CourseId);
+            IsUserCourseOwnerCheck(userId, courseId);
 
-            Section? original = dbContext.Sections.Where(x => x.Id == req.Id).FirstOrDefault();
+            Section? original = dbContext.Sections.Where(x => x.Id == sectionId).FirstOrDefault();
             if (original == null)
             {
                 throw new Exception("Section does not exist");
