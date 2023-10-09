@@ -76,11 +76,11 @@ namespace CourseContentManagement.Controllers
 
         [HttpDelete("{id}")]
         [Authorize(Roles = "ADMIN, CREATOR")]
-        public async Task<ActionResult<bool>> DeleteInfoPage(int Id)
+        public async Task<ActionResult<bool>> DeleteInfoPage(int id)
         {
             try
             {
-                return new OkObjectResult(await handler.DeleteInfoPageAsync(Id, this.GetUserId()));
+                return new OkObjectResult(await handler.DeleteInfoPageAsync(id, this.GetUserId()));
             }
             catch (Exception ex)
             {

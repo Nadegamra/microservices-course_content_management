@@ -59,7 +59,7 @@ namespace CourseContentManagement.Handlers
             foreach (var pair in typeof(Section).GetProperties())
             {
                 var value = pair.GetValue(section);
-                if (pair.Name == "Id" || value == null)
+                if (pair.Name == "Id" || value == null || pair.Name == "CourseId")
                 {
                     continue;
                 }

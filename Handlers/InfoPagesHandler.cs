@@ -74,7 +74,7 @@ namespace CourseContentManagement.Handlers
             foreach (var pair in typeof(InfoPage).GetProperties())
             {
                 var value = pair.GetValue(updated);
-                if (pair.Name == "Id" || value == null)
+                if (pair.Name == "Id" || value == null || pair.Name == "SectionId")
                 {
                     continue;
                 }
