@@ -17,30 +17,49 @@ namespace CourseContentManagement.Controllers
             this.handler = handler;
         }
 
-        [HttpGet("getList")]
+        [HttpGet]
         [AllowAnonymous]
         public async Task<ActionResult<List<Section>>> GetSectionList(int courseId)
         {
             try
             {
-                return new OkObjectResult(await handler.GetSectionListAsync(courseId));
+                int userId = -1;
+                try
+                {
+                    return Ok(await handler.GetUserSectionListAsync(courseId, this.GetUserId()));
+                }
+                catch
+                {
+                    return Ok(await handler.GetSectionListAsync(courseId));
+                }
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult(ex.Message);
+                return NotFound(ex.Message);
             }
         }
-        [HttpGet("getList/owned")]
-        [Authorize(Roles = "ADMIN, CREATOR")]
-        public async Task<ActionResult<List<Section>>> GetUserSectionList(int courseId)
+
+        [HttpGet("{id}")]
+        [AllowAnonymous]
+        public async Task<ActionResult<Section?>> GetSection(int courseId, int id)
         {
             try
             {
-                return new OkObjectResult(await handler.GetUserSectionListAsync(courseId, this.GetUserId()));
+                int userId = -1;
+                try
+                {
+                    userId = this.GetUserId();
+                    var res = await handler.GetUserSectionAsync(courseId, userId, id);
+                    return res != null ? Ok(res) : NotFound();
+                }
+                catch
+                {
+                    return Ok(await handler.GetSectionAsync(courseId, id));
+                }
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult(ex.Message);
+                return NotFound(ex.Message);
             }
         }
 
@@ -50,11 +69,12 @@ namespace CourseContentManagement.Controllers
         {
             try
             {
-                return new OkObjectResult(await handler.AddSectionAsync(courseId, req, this.GetUserId()));
+                var result = await handler.AddSectionAsync(courseId, req, this.GetUserId());
+                return Created($"/courses/{courseId}/sections/{result.Id}", result);
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult(ex.Message);
+                return BadRequest(ex.Message);
             }
         }
 
@@ -64,11 +84,11 @@ namespace CourseContentManagement.Controllers
         {
             try
             {
-                return new OkObjectResult(await handler.UpdateSectionAsync(courseId, id, req, this.GetUserId()));
+                return Ok(await handler.UpdateSectionAsync(courseId, id, req, this.GetUserId()));
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult(ex.Message);
+                return BadRequest(ex.Message);
             }
         }
 
@@ -78,11 +98,11 @@ namespace CourseContentManagement.Controllers
         {
             try
             {
-                return new OkObjectResult(await handler.DeleteSectionAsync(id, this.GetUserId()));
+                return Ok(await handler.DeleteSectionAsync(id, this.GetUserId()));
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult(ex.Message);
+                return BadRequest(ex.Message);
             }
         }
     }

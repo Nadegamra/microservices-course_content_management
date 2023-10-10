@@ -17,46 +17,64 @@ namespace CourseContentManagement.Controllers
             this.handler = handler;
         }
 
-        [HttpGet("getList")]
+        [HttpGet]
         [AllowAnonymous]
         public async Task<ActionResult<List<InfoPage>>> GetInfoPageList(int courseId, int sectionId)
         {
             try
             {
-                return new OkObjectResult(await handler.GetInfoPageListAsync(courseId, sectionId));
+                int userId = -1;
+                try
+                {
+                    userId = this.GetUserId();
+                    return Ok(await handler.GetUserInfoPageListAsync(courseId, sectionId, this.GetUserId()));
+                }
+                catch
+                {
+                    return Ok(await handler.GetInfoPageListAsync(courseId, sectionId));
+                }
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult(ex.Message);
+                return BadRequest(ex.Message);
             }
         }
 
-
-        [HttpGet("getList/owned")]
-        [Authorize(Roles = "ADMIN, CREATOR")]
-        public async Task<ActionResult<List<InfoPage>>> GetUserInfoPageList(int courseId, int sectionId)
+        [HttpGet("{id}")]
+        [AllowAnonymous]
+        public async Task<ActionResult<List<InfoPage>>> GetInfoPage(int courseId, int sectionId, int id)
         {
             try
             {
-                return new OkObjectResult(await handler.GetUserInfoPageListAsync(courseId, sectionId, this.GetUserId()));
+                int userId = -1;
+                try
+                {
+                    userId = this.GetUserId();
+                    return Ok(await handler.GetUserInfoPageAsync(courseId, sectionId, id, userId));
+                }
+                catch
+                {
+                    return Ok(await handler.GetInfoPageAsync(courseId, sectionId, id));
+                }
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult(ex.Message);
+                return BadRequest(ex.Message);
             }
         }
 
         [HttpPost]
         [Authorize(Roles = "ADMIN, CREATOR")]
-        public async Task<ActionResult<InfoPage>> AddInfoPage(int sectionId, InfoPageAddRequest req)
+        public async Task<ActionResult<InfoPage>> AddInfoPage(int courseId, int sectionId, InfoPageAddRequest req)
         {
             try
             {
-                return new OkObjectResult(await handler.AddInfoPageAsync(sectionId, req, this.GetUserId()));
+                var result = await handler.AddInfoPageAsync(sectionId, req, this.GetUserId());
+                return Created($"/courses/{courseId}/sections/{sectionId}/infoPages/{result.Id}", result);
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult(ex.Message);
+                return BadRequest(ex.Message);
             }
         }
 
@@ -66,11 +84,11 @@ namespace CourseContentManagement.Controllers
         {
             try
             {
-                return new OkObjectResult(await handler.UpdateInfoPageAsync(id, req, this.GetUserId()));
+                return Ok(await handler.UpdateInfoPageAsync(id, req, this.GetUserId()));
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult(ex.Message);
+                return BadRequest(ex.Message);
             }
         }
 
@@ -80,11 +98,11 @@ namespace CourseContentManagement.Controllers
         {
             try
             {
-                return new OkObjectResult(await handler.DeleteInfoPageAsync(id, this.GetUserId()));
+                return Ok(await handler.DeleteInfoPageAsync(id, this.GetUserId()));
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult(ex.Message);
+                return BadRequest(ex.Message);
             }
         }
     }
