@@ -50,6 +50,44 @@ namespace CourseContentManagement.Handlers
             return dbContext.InfoPages.Where(x => x.SectionId == sectionId).ToList();
         }
 
+        public async Task<InfoPage?> GetInfoPageAsync(int courseId, int sectionId, int id)
+        {
+            Course? course = dbContext.Courses.Where(x => x.Id == courseId).FirstOrDefault();
+
+            if (course == null || course.IsDeleted)
+            {
+                throw new Exception("Course, associated with this section does not exist");
+            }
+
+            Section? section = dbContext.Sections.Where(x => x.Id == sectionId).FirstOrDefault();
+            if (section == null || section.CourseId != courseId)
+            {
+                throw new Exception("This section does not belong to the specified course");
+            }
+
+            return dbContext.InfoPages.Where(x => x.SectionId == sectionId && x.Id == id && !x.IsHidden).FirstOrDefault();
+        }
+
+        public async Task<InfoPage?> GetUserInfoPageAsync(int courseId, int sectionId, int id, int userId)
+        {
+            Course? course = dbContext.Courses.Where(x => x.Id == courseId).FirstOrDefault();
+
+            bool isOwner = userId == course?.UserId;
+
+            if (course == null || course.IsDeleted || !isOwner)
+            {
+                throw new Exception("Course, associated with this section does not exist");
+            }
+
+            Section? section = dbContext.Sections.Where(x => x.Id == sectionId).FirstOrDefault();
+            if (section == null || section.CourseId != courseId)
+            {
+                throw new Exception("This section does not belong to the specified course");
+            }
+
+            return dbContext.InfoPages.Where(x => x.SectionId == sectionId && x.Id == id).FirstOrDefault();
+        }
+
         public async Task<InfoPage> AddInfoPageAsync(int sectionId, InfoPageAddRequest req, int userId)
         {
             IsUserSectionOwnerCheck(userId, sectionId);
@@ -74,7 +112,7 @@ namespace CourseContentManagement.Handlers
             foreach (var pair in typeof(InfoPage).GetProperties())
             {
                 var value = pair.GetValue(updated);
-                if (pair.Name == "Id" || value == null)
+                if (pair.Name == "Id" || value == null || pair.Name == "SectionId")
                 {
                     continue;
                 }

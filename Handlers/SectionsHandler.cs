@@ -35,6 +35,29 @@ namespace CourseContentManagement.Handlers
             return dbContext.Sections.Where(x => x.CourseId == courseId).ToList();
         }
 
+        public async Task<Section?> GetSectionAsync(int courseId, int id)
+        {
+            Course? course = dbContext.Courses.Where(x => x.Id == courseId).FirstOrDefault();
+
+            if (course == null || course.IsDeleted)
+            {
+                throw new Exception("Course, associated with this section does not exist");
+            }
+            return dbContext.Sections.Where(x => x.CourseId == courseId && x.Id == id && !x.IsHidden).FirstOrDefault();
+        }
+        public async Task<Section?> GetUserSectionAsync(int courseId, int userId, int id)
+        {
+            Course? course = dbContext.Courses.Where(x => x.Id == courseId).FirstOrDefault();
+
+            bool isOwner = userId == course?.UserId;
+
+            if (course == null || course.IsDeleted || !isOwner)
+            {
+                throw new Exception("Course, associated with this section does not exist");
+            }
+            return dbContext.Sections.Where(x => x.CourseId == courseId && x.Id == id).FirstOrDefault();
+        }
+
         public async Task<Section> AddSectionAsync(int courseId, SectionAddRequest req, int userId)
         {
             IsUserCourseOwnerCheck(userId, courseId);
@@ -59,7 +82,7 @@ namespace CourseContentManagement.Handlers
             foreach (var pair in typeof(Section).GetProperties())
             {
                 var value = pair.GetValue(section);
-                if (pair.Name == "Id" || value == null)
+                if (pair.Name == "Id" || value == null || pair.Name == "CourseId")
                 {
                     continue;
                 }
