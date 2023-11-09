@@ -26,7 +26,8 @@ namespace CourseContentManagement.Controllers
                 int userId = -1;
                 try
                 {
-                    return Ok(await handler.GetUserSectionListAsync(courseId, this.GetUserId()));
+                    userId = this.GetUserId();
+                    return Ok(await handler.GetUserSectionListAsync(courseId, userId));
                 }
                 catch
                 {
@@ -98,7 +99,8 @@ namespace CourseContentManagement.Controllers
         {
             try
             {
-                return Ok(await handler.DeleteSectionAsync(id, this.GetUserId()));
+                bool result = await handler.DeleteSectionAsync(id, this.GetUserId());
+                return result ? NoContent() : NotFound();
             }
             catch (Exception ex)
             {

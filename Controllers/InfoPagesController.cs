@@ -98,7 +98,8 @@ namespace CourseContentManagement.Controllers
         {
             try
             {
-                return Ok(await handler.DeleteInfoPageAsync(id, this.GetUserId()));
+                bool result = await handler.DeleteInfoPageAsync(id, this.GetUserId());
+                return result ? NoContent() : NotFound();
             }
             catch (Exception ex)
             {
