@@ -21,7 +21,7 @@ namespace CourseContentManagement.Handlers
                 throw new Exception("Course, associated with this section does not exist");
             }
 
-            Section? section = dbContext.Sections.Where(x => x.Id == sectionId).FirstOrDefault();
+            Section? section = dbContext.Sections.Where(x => x.Id == sectionId && !course.IsHidden).FirstOrDefault();
             if (section == null || section.CourseId != courseId)
             {
                 throw new Exception("This section does not belong to the specified course");

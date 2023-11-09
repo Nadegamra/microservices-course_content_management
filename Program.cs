@@ -23,7 +23,7 @@ var services = builder.Services;
     {
       options.AddDefaultPolicy(policy =>
       {
-        policy.WithOrigins("https://localhost:3000", "http://localhost:3000")
+        policy.WithOrigins("https://localhost", "http://localhost", "http://localhost:3000", "https://nadegamraolpfrontend.azurewebsites.net")
           .AllowAnyHeader()
           .AllowAnyMethod()
           .AllowCredentials();
@@ -107,13 +107,15 @@ var services = builder.Services;
 }
 var app = builder.Build();
 {
+  app.UseCors();
+
   if (app.Environment.IsDevelopment())
   {
     app.UseSwagger();
     app.UseSwaggerUI();
   }
 
-  app.UseHttpsRedirection();
+  // app.UseHttpsRedirection();
 
   app.UseAuthorization();
 
