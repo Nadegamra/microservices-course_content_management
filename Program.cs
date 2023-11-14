@@ -1,4 +1,3 @@
-using System.Net.NetworkInformation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -10,6 +9,9 @@ using CourseContentManagement.Handlers;
 using System.Text.Json.Serialization;
 using CourseContentManagement.IntegrationEvents.Events;
 using CourseContentManagement.IntegrationEvents.Handlers;
+using CourseContentManagement.Data.Repositories;
+using CourseContentManagement.Data.Models;
+using CourseContentManagement;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -93,9 +95,15 @@ var services = builder.Services;
   services.AddDbContext<CourseContentDbContext>(options =>
       options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
+  // Repositories
+  services.AddScoped<IRepository<InfoPage>, InfoPagesRepository>();
+  services.AddScoped<IRepository<Section>, SectionsRepository>();
+  services.AddScoped<IRepository<Course>, CoursesRepository>();
+
   // Handlers
   services.AddTransient<SectionsHandler>();
   services.AddTransient<InfoPagesHandler>();
+  services.AddTransient<CoursesHandler>();
 
   // Event Bus
   ConfigureServices.AddEventBus(builder);
@@ -113,6 +121,11 @@ var app = builder.Build();
   {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseDeveloperExceptionPage();
+  }
+  else
+  {
+    app.UseProductionExceptionHandler();
   }
 
   // app.UseHttpsRedirection();

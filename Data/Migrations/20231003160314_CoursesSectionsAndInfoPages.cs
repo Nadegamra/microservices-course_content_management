@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace CourseContentManagement.Migrations
+namespace CourseContentManagement.Data.Migrations
 {
     /// <inheritdoc />
     public partial class CoursesSectionsAndInfoPages : Migration

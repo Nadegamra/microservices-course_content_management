@@ -2,19 +2,16 @@
 using CourseContentManagement.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace CourseContentManagement.Migrations
+namespace CourseContentManagement.Data.Migrations
 {
     [DbContext(typeof(CourseContentDbContext))]
-    [Migration("20231008203315_DefaultData")]
-    partial class DefaultData
+    partial class CourseContentDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

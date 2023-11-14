@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using CourseContentManagement.Data;
 using CourseContentManagement.Data.Models;
+using CourseContentManagement.Data.Repositories;
 using CourseContentManagement.IntegrationEvents.Events;
 using Infrastructure.EventBus.Generic.IntegrationEvents;
 
@@ -11,22 +7,20 @@ namespace CourseContentManagement.IntegrationEvents.Handlers
 {
     public class CourseCreatedIntegrationEventHandler : IIntegrationEventHandler<CourseCreatedIntegrationEvent>
     {
-        private readonly CourseContentDbContext dbContext;
+        private readonly IRepository<Course> repository;
 
-        public CourseCreatedIntegrationEventHandler(CourseContentDbContext dbContext)
+        public CourseCreatedIntegrationEventHandler(IRepository<Course> repository)
         {
-            this.dbContext = dbContext;
+            this.repository = repository;
         }
 
         public async Task Handle(CourseCreatedIntegrationEvent @event)
         {
-            Course? course = dbContext.Courses.Where(x => x.Id == @event.Id).FirstOrDefault();
+            Course? course = repository.Get(@event.Id);
             if (course == null)
             {
                 course = new Course { Id = @event.Id, UserId = @event.UserId, IsHidden = true, IsDeleted = false };
-
-                await dbContext.Courses.AddAsync(course);
-                await dbContext.SaveChangesAsync();
+                repository.Add(course);
             }
         }
     }
