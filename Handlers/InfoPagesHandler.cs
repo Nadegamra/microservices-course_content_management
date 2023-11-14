@@ -1,184 +1,84 @@
-using CourseContentManagement.Data;
 using CourseContentManagement.Data.DTOs.InfoPage;
 using CourseContentManagement.Data.Models;
+using CourseContentManagement.Data.Repositories;
+using CourseContentManagement.Exceptions;
 
 namespace CourseContentManagement.Handlers
 {
     public class InfoPagesHandler
     {
-        private readonly CourseContentDbContext dbContext;
+        private readonly IRepository<InfoPage> infopagesRespository;
+        private readonly SectionsHandler sectionsHandler;
 
-        public InfoPagesHandler(CourseContentDbContext dbContext)
+        public InfoPagesHandler(IRepository<InfoPage> infopagesRespository, SectionsHandler sectionsHandler)
         {
-            this.dbContext = dbContext;
-        }
-        public async Task<List<InfoPage>> GetInfoPageListAsync(int courseId, int sectionId)
-        {
-            Course? course = dbContext.Courses.Where(x => x.Id == courseId).FirstOrDefault();
-
-            if (course == null || course.IsDeleted)
-            {
-                throw new Exception("Course, associated with this section does not exist");
-            }
-
-            Section? section = dbContext.Sections.Where(x => x.Id == sectionId && !course.IsHidden).FirstOrDefault();
-            if (section == null || section.CourseId != courseId)
-            {
-                throw new Exception("This section does not belong to the specified course");
-            }
-
-            return dbContext.InfoPages.Where(x => x.SectionId == sectionId && !x.IsHidden).ToList();
+            this.infopagesRespository = infopagesRespository;
+            this.sectionsHandler = sectionsHandler;
         }
 
-        public async Task<List<InfoPage>> GetUserInfoPageListAsync(int courseId, int sectionId, int userId)
+        public InfoPage GetInfoPage(int courseId, int sectionId, int infoPageId, int? userId = null)
         {
-            Course? course = dbContext.Courses.Where(x => x.Id == courseId).FirstOrDefault();
+            CheckInfoPageValidity(courseId, sectionId, infoPageId, userId);
+            InfoPage? infoPage = infopagesRespository.Get(infoPageId);
 
-            bool isOwner = userId == course?.UserId;
-
-            if (course == null || course.IsDeleted || !isOwner)
-            {
-                throw new Exception("Course, associated with this section does not exist");
-            }
-
-            Section? section = dbContext.Sections.Where(x => x.Id == sectionId).FirstOrDefault();
-            if (section == null || section.CourseId != courseId)
-            {
-                throw new Exception("This section does not belong to the specified course");
-            }
-
-            return dbContext.InfoPages.Where(x => x.SectionId == sectionId).ToList();
+            return infoPage;
         }
 
-        public async Task<InfoPage?> GetInfoPageAsync(int courseId, int sectionId, int id)
+        public List<InfoPage> GetInfoPageList(int courseId, int sectionId, int? userId = null)
         {
-            Course? course = dbContext.Courses.Where(x => x.Id == courseId).FirstOrDefault();
+            sectionsHandler.CheckSectionValidity(courseId, sectionId, userId);
 
-            if (course == null || course.IsDeleted)
+            if (userId == null)
             {
-                throw new Exception("Course, associated with this section does not exist");
+                return infopagesRespository.GetAll()
+                        .Where(x => x.SectionId == sectionId && !x.IsHidden)
+                        .ToList();
             }
-
-            Section? section = dbContext.Sections.Where(x => x.Id == sectionId).FirstOrDefault();
-            if (section == null || section.CourseId != courseId)
+            else
             {
-                throw new Exception("This section does not belong to the specified course");
+                return infopagesRespository.GetAll()
+                        .Where(x => x.SectionId == sectionId)
+                        .ToList();
             }
-
-            return dbContext.InfoPages.Where(x => x.SectionId == sectionId && x.Id == id && !x.IsHidden).FirstOrDefault();
         }
 
-        public async Task<InfoPage?> GetUserInfoPageAsync(int courseId, int sectionId, int id, int userId)
+        public async Task<InfoPage> AddInfoPageAsync(int courseId, int sectionId, InfoPageAddRequest req, int userId)
         {
-            Course? course = dbContext.Courses.Where(x => x.Id == courseId).FirstOrDefault();
+            sectionsHandler.CheckSectionValidity(courseId, sectionId, userId);
 
-            bool isOwner = userId == course?.UserId;
+            InfoPage infoPage = req.ToEntity(sectionId);
 
-            if (course == null || course.IsDeleted || !isOwner)
-            {
-                throw new Exception("Course, associated with this section does not exist");
-            }
-
-            Section? section = dbContext.Sections.Where(x => x.Id == sectionId).FirstOrDefault();
-            if (section == null || section.CourseId != courseId)
-            {
-                throw new Exception("This section does not belong to the specified course");
-            }
-
-            return dbContext.InfoPages.Where(x => x.SectionId == sectionId && x.Id == id).FirstOrDefault();
+            var res = infopagesRespository.Add(infoPage);
+            return res;
         }
 
-        public async Task<InfoPage> AddInfoPageAsync(int sectionId, InfoPageAddRequest req, int userId)
+        public async Task<InfoPage> UpdateInfoPageAsync(int courseId, int sectionId, int id, InfoPageUpdateRequest req, int userId)
         {
-            IsUserSectionOwnerCheck(userId, sectionId);
+            InfoPage original = GetInfoPage(courseId, sectionId, id, userId);
 
-            InfoPage infoPage = new InfoPage { SectionId = sectionId, Name = req.Name, Text = req.Text, IsHidden = true };
-            var res = await dbContext.InfoPages.AddAsync(infoPage);
-            await dbContext.SaveChangesAsync();
-            return res.Entity;
+            InfoPage updated = req.UpdateEntity(original);
+
+            var res = infopagesRespository.Update(updated);
+            return res;
         }
 
-        public async Task<InfoPage> UpdateInfoPageAsync(int id, InfoPageUpdateRequest req, int userId)
+        public async Task<bool> DeleteInfoPageAsync(int courseId, int sectionId, int id, int userId)
         {
-            InfoPage? original = dbContext.InfoPages.Where(x => x.Id == id).FirstOrDefault();
-            if (original == null)
-            {
-                throw new Exception("Info page does not exist");
-            }
+            InfoPage infoPage = GetInfoPage(courseId, sectionId, id, userId);
 
-            IsUserSectionOwnerCheck(userId, original.SectionId);
-
-            InfoPage updated = new InfoPage { Name = req.Name, Text = req.Text, IsHidden = req.IsHidden ?? original.IsHidden };
-            foreach (var pair in typeof(InfoPage).GetProperties())
-            {
-                var value = pair.GetValue(updated);
-                if (pair.Name == "Id" || value == null || pair.Name == "SectionId")
-                {
-                    continue;
-                }
-                pair.SetValue(original, value);
-            }
-
-            dbContext.InfoPages.Update(original);
-            await dbContext.SaveChangesAsync();
-            return original;
-        }
-
-        public async Task<bool> DeleteInfoPageAsync(int id, int userId)
-        {
-            InfoPage? infoPage = dbContext.InfoPages.Where(x => x.Id == id).FirstOrDefault();
-            if (infoPage == null)
-            {
-                return false;
-            }
-
-            IsUserSectionOwnerCheck(userId, infoPage.SectionId);
-
-            dbContext.InfoPages.Remove(infoPage);
-            await dbContext.SaveChangesAsync();
+            infopagesRespository.Delete(infoPage);
             return true;
         }
 
-        private void IsUserSectionOwnerCheck(int userId, int sectionId)
+        public void CheckInfoPageValidity(int courseId, int sectionId, int infoPageId, int? userId = null)
         {
-            Section section = dbContext.Sections.Where(x => x.Id == sectionId).FirstOrDefault();
-            if (section == null)
-            {
-                throw new Exception("Section with specified id does not exist");
-            }
-            Course? course = dbContext.Courses.Where(x => x.Id == section.CourseId).FirstOrDefault();
-            if (course == null)
-            {
-                throw new Exception("Course with specified id does not exist");
-            }
-            if (course.UserId != userId)
-            {
-                throw new Exception("Unauthorized");
-            }
-        }
+            sectionsHandler.CheckSectionValidity(courseId, sectionId, userId);
 
-        private bool IsHidden(int infoPageId, int userId)
-        {
-            InfoPage? infoPage = dbContext.InfoPages.Where(x => x.Id == infoPageId).FirstOrDefault();
-            if (infoPage == null)
+            InfoPage? infoPage = infopagesRespository.Get(infoPageId);
+            if (infoPage == null || (userId == null && infoPage.IsHidden))
             {
-                throw new Exception("This info page does not exist");
+                throw new NotFoundEntityException("infoPage", infoPageId);
             }
-            Section? section = dbContext.Sections.Where(x => x.Id == infoPage.SectionId).FirstOrDefault();
-            if (section == null)
-            {
-                throw new Exception("The associated section does not exist");
-            }
-            Course? course = dbContext.Courses.Where(x => x.Id == section.CourseId).FirstOrDefault();
-            if (course == null)
-            {
-                throw new Exception("The associated course does not exist");
-            }
-            if (course.IsDeleted)
-            {
-                return true;
-            }
-            return (infoPage.IsHidden || section.IsHidden || course.IsHidden) && userId != course.UserId;
         }
     }
 }

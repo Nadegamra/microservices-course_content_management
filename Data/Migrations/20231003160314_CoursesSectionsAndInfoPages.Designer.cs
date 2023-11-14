@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace CourseContentManagement.Migrations
+namespace CourseContentManagement.Data.Migrations
 {
     [DbContext(typeof(CourseContentDbContext))]
     [Migration("20231003160314_CoursesSectionsAndInfoPages")]

@@ -21,91 +21,44 @@ namespace CourseContentManagement.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<List<Section>>> GetSectionList(int courseId)
         {
-            try
-            {
-                int userId = -1;
-                try
-                {
-                    userId = this.GetUserId();
-                    return Ok(await handler.GetUserSectionListAsync(courseId, userId));
-                }
-                catch
-                {
-                    return Ok(await handler.GetSectionListAsync(courseId));
-                }
-            }
-            catch (Exception ex)
-            {
-                return NotFound(ex.Message);
-            }
+
+            int? userId = this.IsAuthed() ? this.GetUserId() : null;
+            List<Section> sections = handler.GetSectionList(courseId, userId);
+
+            return Ok(sections);
         }
 
         [HttpGet("{id}")]
         [AllowAnonymous]
         public async Task<ActionResult<Section?>> GetSection(int courseId, int id)
         {
-            try
-            {
-                int userId = -1;
-                try
-                {
-                    userId = this.GetUserId();
-                    var res = await handler.GetUserSectionAsync(courseId, userId, id);
-                    return res != null ? Ok(res) : NotFound();
-                }
-                catch
-                {
-                    return Ok(await handler.GetSectionAsync(courseId, id));
-                }
-            }
-            catch (Exception ex)
-            {
-                return NotFound(ex.Message);
-            }
+            int? userId = this.IsAuthed() ? this.GetUserId() : null;
+            Section section = handler.GetSection(courseId, id, userId);
+
+            return Ok(section);
         }
 
         [HttpPost]
         [Authorize(Roles = "ADMIN, CREATOR")]
         public async Task<ActionResult<Section>> AddSection(int courseId, SectionAddRequest req)
         {
-            try
-            {
-                var result = await handler.AddSectionAsync(courseId, req, this.GetUserId());
-                return Created($"/courses/{courseId}/sections/{result.Id}", result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var result = await handler.AddSectionAsync(courseId, req, this.GetUserId());
+            return Created($"/courses/{courseId}/sections/{result.Id}", result);
         }
 
         [HttpPut("{id}")]
         [Authorize(Roles = "ADMIN, CREATOR")]
         public async Task<ActionResult<Section>> UpdateSection(int courseId, int id, SectionUpdateRequest req)
         {
-            try
-            {
-                return Ok(await handler.UpdateSectionAsync(courseId, id, req, this.GetUserId()));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            return Ok(await handler.UpdateSectionAsync(courseId, id, req, this.GetUserId()));
         }
 
         [HttpDelete("{id}")]
         [Authorize(Roles = "ADMIN, CREATOR")]
-        public async Task<ActionResult<bool>> DeleteSection(int id)
+        public async Task<ActionResult<bool>> DeleteSection(int courseId, int id)
         {
-            try
-            {
-                bool result = await handler.DeleteSectionAsync(id, this.GetUserId());
-                return result ? NoContent() : NotFound();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            bool result = await handler.DeleteSectionAsync(courseId, id, this.GetUserId());
+            return result ? NoContent() : NotFound();
         }
     }
 }
