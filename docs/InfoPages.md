@@ -1,7 +1,7 @@
 # Info Pages
 ## Endpoints
 ### Get Info Page List
-- **Short Description:** Gets course's section's info page list. Returns hidden info pages if owner.
+- **Short Description:** Gets section's info page list. Can return hidden info pages if owner.
 - **URL:** `/courses/{courseId}/sections/{sectionId}/infoPages`
 - **Method:** `GET`
 - **Require Authorization:** `optional`
@@ -23,7 +23,7 @@
     ```
 - **Sample Request:** `GET /courses/1/sections/1/infoPages`
 - **Response Codes:**
-  - Successfully found course sections: `200 Ok`
+  - Successfully found the info page: `200 Ok`
     - **Sample Response:**
       ```json
       [
@@ -36,9 +36,9 @@
           }
       ]
       ```
-  - Course not found: `404 Not Found` 
+  - Course section not found: `404 Not Found` 
 ### Get Info Page
-- **Short Description:** Gets course's section. Can return a hidden section if owner.
+- **Short Description:** Gets the specified info page. Can return a hidden info page if owner.
 - **URL:** `/courses/{courseId}/sections/{sectionId}/infoPages/{infoPageId}`
 - **Method:** `GET`
 - **Require Authorization:** `optional`
@@ -59,7 +59,7 @@
     ```
 - **Sample Request:** `GET /courses/1/sections/1/infoPages/1`
 - **Response Codes:**
-  - Successfully found course sections: `200 Ok`
+  - Successfully found the info page: `200 Ok`
     - **Sample Response:**
       ```json
       {
@@ -70,7 +70,7 @@
         "isHidden": true
       }
       ```
-  - Course section not found: `404 Not Found`
+  - Info page not found: `404 Not Found`
   ### Add Info Page
 - **Short Description:** Adds a new info page to an owned course's section
 - **URL:** `/courses/{courseId}/sections/{sectionId}/infoPages`
@@ -103,7 +103,7 @@
   }
   ```
 - **Response Codes:**
-  - Successfully found course sections: `200 Ok`
+  - Successfully found the info page: `200 Ok`
     - **Sample Response:**
       ```json
       {
@@ -114,7 +114,7 @@
         "isHidden": true
       }
       ```
-  - Course section not found: `404 Not Found`
+  - Info page not found: `404 Not Found`
   ### Update Info Page
   - **Short Description:** Updates an owned info page
   - **URL:** `/courses/{courseId}/sections/{sectionId}/infoPages/{infoPageId}`
@@ -150,7 +150,7 @@
     }
     ```
   - **Response Codes:**
-    - Successfully found course sections: `201 Created`
+    - Successfully updated the info page: `201 Created`
       - **Sample Response:**
        ```json
       {
@@ -175,5 +175,5 @@
   - **Response Type:** `-`
   - **Sample Request:** `DELETE /courses/1/sections/9/infoPages/15`
   - **Response Codes:**
-    - Successfully deleted info page: `204 No Content`
+    - Successfully deleted the info page: `204 No Content`
     - Info page not found: `404 Not Found`
