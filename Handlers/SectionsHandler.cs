@@ -7,26 +7,30 @@ namespace CourseContentManagement.Handlers
 {
     public class SectionsHandler
     {
+        private readonly IRepository<Course> courseRepository;
         private readonly IRepository<Section> repository;
         private readonly CoursesHandler coursesHandler;
 
-        public SectionsHandler(IRepository<Section> repository, CoursesHandler coursesHandler)
+        public SectionsHandler(IRepository<Section> repository, CoursesHandler coursesHandler, IRepository<Course> courseRepository)
         {
             this.repository = repository;
             this.coursesHandler = coursesHandler;
+            this.courseRepository = courseRepository;
         }
 
         public Section GetSection(int courseId, int sectionId, int? userId = null)
         {
             CheckSectionValidity(courseId, sectionId, userId);
             return repository.Get(sectionId);
+
         }
 
         public List<Section> GetSectionList(int courseId, int? userId = null)
         {
             coursesHandler.CheckCourseValidity(courseId, userId);
+            var course = courseRepository.Get(courseId);
 
-            if (userId == null)
+            if (userId == null || course.UserId != userId)
             {
                 return repository.GetAll()
                         .Where(x => x.CourseId == courseId && !x.IsHidden)
@@ -73,9 +77,10 @@ namespace CourseContentManagement.Handlers
         public void CheckSectionValidity(int courseId, int sectionId, int? userId = null)
         {
             coursesHandler.CheckCourseValidity(courseId, userId);
+            var course = courseRepository.Get(courseId);
 
             Section? section = repository.Get(sectionId);
-            if (section == null || (userId == null && section.IsHidden))
+            if (section == null || (section.IsHidden && (userId == null && userId != course.UserId)))
             {
                 throw new NotFoundEntityException("section", sectionId);
             }

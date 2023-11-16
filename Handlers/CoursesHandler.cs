@@ -16,13 +16,9 @@ namespace CourseContentManagement.Handlers
         public void CheckCourseValidity(int courseId, int? userId = null)
         {
             Course? course = repository.Get(courseId);
-            if (course == null)
+            if (course == null || (course.IsHidden && (userId != null && course.UserId != userId)))
             {
                 throw new NotFoundEntityException("course", courseId);
-            }
-            if (userId != null && course.UserId != userId)
-            {
-                throw new NotEntityOwnerException("course", courseId, (int)userId);
             }
         }
     }
