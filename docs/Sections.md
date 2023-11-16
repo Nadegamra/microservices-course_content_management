@@ -164,7 +164,7 @@
     }
     ```
   - **Response Codes:**
-    - Successfully found course sections: `201 Created`
+    - Successfully found course sections: `200 Ok`
       - **Sample Response:**
         ```json
         {
