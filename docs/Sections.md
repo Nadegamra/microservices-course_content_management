@@ -83,7 +83,6 @@
       }
       ```
   - Course section not found: `404 Not Found`
-  - Section not in the specified course: `400 Bad Request`  
 ### Add Section
 - **Short Description:** Adds a new section to an owned course
 - **URL:** `/courses/{courseId}/sections`
@@ -176,7 +175,6 @@
         }
         ```
     - Owned course not found: `404 Not Found`
-    - Section not in the specified course: `400 Bad Request`  
 ### Delete Section
   - **Short Description:** Deletes the specified section
   - **URL:** `/courses/{courseId}/sections/{sectionId}`
@@ -191,4 +189,3 @@
   - **Response Codes:**
     - Successfully found course sections: `204 No Content`
     - Owned section not found: `404 Not Found`
-    - Section not in the specified course: `400 Bad Request` 
