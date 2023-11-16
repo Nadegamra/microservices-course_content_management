@@ -130,7 +130,7 @@
       ```
   - Owned course not found: `404 Not Found` 
 ### Update Section
-  - **Short Description:** Adds a new section to an owned course
+  - **Short Description:** Updates an owned section
   - **URL:** `/courses/{courseId}/sections/{sectionId}`
   - **Method:** `PUT`
   - **Require Authorization:** `true`
