@@ -47,6 +47,7 @@ namespace CourseContentManagement.Handlers
 
         public async Task<Section> AddSectionAsync(int courseId, SectionAddRequest req, int userId)
         {
+            coursesHandler.IsOwner(courseId, userId);
             coursesHandler.CheckCourseValidity(courseId, userId);
 
             Section section = req.ToEntity(courseId);
@@ -56,6 +57,7 @@ namespace CourseContentManagement.Handlers
 
         public async Task<Section> UpdateSectionAsync(int courseId, int sectionId, SectionUpdateRequest req, int userId)
         {
+            coursesHandler.IsOwner(courseId, userId);
             CheckSectionValidity(courseId, sectionId, userId);
             Section original = repository.Get(sectionId);
 
@@ -67,6 +69,7 @@ namespace CourseContentManagement.Handlers
 
         public async Task<bool> DeleteSectionAsync(int courseId, int id, int userId)
         {
+            coursesHandler.IsOwner(courseId, userId);
             CheckSectionValidity(courseId, id, userId);
             Section section = repository.Get(id);
 

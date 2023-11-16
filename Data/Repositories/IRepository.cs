@@ -25,7 +25,7 @@ namespace CourseContentManagement.Data.Repositories
         }
         public T Delete(T entity)
         {
-            var res = dbContext.Update(entity);
+            var res = dbContext.Remove(entity);
             dbContext.SaveChanges();
             return (T)res.Entity;
         }

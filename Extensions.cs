@@ -38,7 +38,7 @@ namespace CourseContentManagement
                             await context.Response.WriteAsync(notEntityOwnerException.Message);
                             break;
                         case InvalidIdChainException invalidIdChainException:
-                            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                            context.Response.StatusCode = StatusCodes.Status404NotFound;
                             await context.Response.WriteAsync(invalidIdChainException.Message);
                             break;
                         default:

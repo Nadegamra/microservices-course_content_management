@@ -21,5 +21,10 @@ namespace CourseContentManagement.Handlers
                 throw new NotFoundEntityException("course", courseId);
             }
         }
+        public bool IsOwner(int courseId, int userId)
+        {
+            Course? course = repository.Get(courseId);
+            return course.UserId == userId;
+        }
     }
 }

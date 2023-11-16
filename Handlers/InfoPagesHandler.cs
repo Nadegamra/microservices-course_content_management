@@ -9,11 +9,13 @@ namespace CourseContentManagement.Handlers
     {
         private readonly IRepository<InfoPage> infopagesRespository;
         private readonly SectionsHandler sectionsHandler;
+        private readonly CoursesHandler coursesHandler;
 
-        public InfoPagesHandler(IRepository<InfoPage> infopagesRespository, SectionsHandler sectionsHandler)
+        public InfoPagesHandler(IRepository<InfoPage> infopagesRespository, SectionsHandler sectionsHandler, CoursesHandler coursesHandler)
         {
             this.infopagesRespository = infopagesRespository;
             this.sectionsHandler = sectionsHandler;
+            this.coursesHandler = coursesHandler;
         }
 
         public InfoPage GetInfoPage(int courseId, int sectionId, int infoPageId, int? userId = null)
@@ -44,6 +46,7 @@ namespace CourseContentManagement.Handlers
 
         public async Task<InfoPage> AddInfoPageAsync(int courseId, int sectionId, InfoPageAddRequest req, int userId)
         {
+            coursesHandler.IsOwner(courseId, userId);
             sectionsHandler.CheckSectionValidity(courseId, sectionId, userId);
 
             InfoPage infoPage = req.ToEntity(sectionId);
@@ -54,6 +57,9 @@ namespace CourseContentManagement.Handlers
 
         public async Task<InfoPage> UpdateInfoPageAsync(int courseId, int sectionId, int id, InfoPageUpdateRequest req, int userId)
         {
+            coursesHandler.IsOwner(courseId, userId);
+            CheckInfoPageValidity(courseId, sectionId, id, userId);
+
             InfoPage original = GetInfoPage(courseId, sectionId, id, userId);
 
             InfoPage updated = req.UpdateEntity(original);
@@ -64,6 +70,9 @@ namespace CourseContentManagement.Handlers
 
         public async Task<bool> DeleteInfoPageAsync(int courseId, int sectionId, int id, int userId)
         {
+            coursesHandler.IsOwner(courseId, userId);
+            CheckInfoPageValidity(courseId, sectionId, id, userId);
+
             InfoPage infoPage = GetInfoPage(courseId, sectionId, id, userId);
 
             infopagesRespository.Delete(infoPage);
@@ -78,6 +87,10 @@ namespace CourseContentManagement.Handlers
             if (infoPage == null || (userId == null && infoPage.IsHidden))
             {
                 throw new NotFoundEntityException("infoPage", infoPageId);
+            }
+            if (infoPage.SectionId != sectionId)
+            {
+                throw new InvalidIdChainException("course", courseId, "section", sectionId);
             }
         }
     }
