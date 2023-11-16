@@ -130,65 +130,65 @@
       ```
   - Owned course not found: `404 Not Found` 
 ### Update Section
-- **Short Description:** Adds a new section to an owned course
-- **URL:** `/courses/{courseId}/sections/{sectionId}`
-- **Method:** `PUT`
-- **Require Authorization:** `true`
-- **Authorized Roles:** `CREATOR`
-- **Request Type:**
-  - `courseId`: int
-  - `sectionId`: int
-  ```javascript
-  {
-    "name": string,
-    "description": string,
-    "isHidden": bool
-  }
-  ```
-- **Response Type:**
+  - **Short Description:** Adds a new section to an owned course
+  - **URL:** `/courses/{courseId}/sections/{sectionId}`
+  - **Method:** `PUT`
+  - **Require Authorization:** `true`
+  - **Authorized Roles:** `CREATOR`
+  - **Request Type:**
+    - `courseId`: int
+    - `sectionId`: int
     ```javascript
     {
-      "id": int,
-      "courseId": int,
       "name": string,
       "description": string,
-      "isHidden": bool  
+      "isHidden": bool
     }
     ```
-- **Sample Request:** `PUT /courses/1/sections/9`
-  ```json
-  {
-    "name": "Yet another new section",
-    "description": "",
-    "isHidden": false
-  }
-  ```
-- **Response Codes:**
-  - Successfully found course sections: `201 Created`
-    - **Sample Response:**
-      ```json
+  - **Response Type:**
+      ```javascript
       {
-          "id": 9,
-          "courseId": 1,
-          "name": "Yet another new section",
-          "description": "",
-          "isHidden": false
+        "id": int,
+        "courseId": int,
+        "name": string,
+        "description": string,
+        "isHidden": bool  
       }
       ```
-  - Owned course not found: `404 Not Found`
-  - Section not in the specified course: `400 Bad Request`  
+  - **Sample Request:** `PUT /courses/1/sections/9`
+    ```json
+    {
+      "name": "Yet another new section",
+      "description": "",
+      "isHidden": false
+    }
+    ```
+  - **Response Codes:**
+    - Successfully found course sections: `201 Created`
+      - **Sample Response:**
+        ```json
+        {
+            "id": 9,
+            "courseId": 1,
+            "name": "Yet another new section",
+            "description": "",
+            "isHidden": false
+        }
+        ```
+    - Owned course not found: `404 Not Found`
+    - Section not in the specified course: `400 Bad Request`  
 ### Delete Section
-- **Short Description:** Deletes the specified section
-- **URL:** `/courses/{courseId}/sections/{sectionId}`
-- **Method:** `DELETE`
-- **Require Authorization:** `true`
-- **Authorized Roles:** `CREATOR`
-- **Request Type:**
-  - `courseId`: int
-  - `sectionId`: int
-- **Response Type:** `-`
-- **Sample Request:** `DELETE /courses/1/sections/9`
-- **Response Codes:**
-  - Successfully found course sections: `204 No Content`
-  - Owned section not found: `404 Not Found`
-  - Section not in the specified course: `400 Bad Request` 
+  - **Short Description:** Deletes the specified section
+  - **URL:** `/courses/{courseId}/sections/{sectionId}`
+  - **Method:** `DELETE`
+  - **Require Authorization:** `true`
+  - **Authorized Roles:** `CREATOR`
+  - **Request Type:**
+    - `courseId`: int
+    - `sectionId`: int
+  - **Response Type:** `-`
+  - **Sample Request:** `DELETE /courses/1/sections/9`
+  - **Response Codes:**
+    - Successfully found course sections: `204 No Content`
+    - Owned section not found: `404 Not Found`
+    - Section not in the specified course: `400 Bad Request` 
