@@ -111,8 +111,8 @@
 - **Sample Request:** `POST /courses/1/sections`
   ```json
   {
-    description: "",
-    name: "A new section"
+    "description": "",
+    "name": "A new section"
   }
   ```
 - **Response Codes:**
@@ -138,6 +138,13 @@
 - **Request Type:**
   - `courseId`: int
   - `sectionId`: int
+  ```javascript
+  {
+    "name": string,
+    "description": string,
+    "isHidden": bool
+  }
+  ```
 - **Response Type:**
     ```javascript
     {
@@ -183,6 +190,5 @@
 - **Sample Request:** `DELETE /courses/1/sections/9`
 - **Response Codes:**
   - Successfully found course sections: `204 No Content`
-    - **Sample Response:**
   - Owned section not found: `404 Not Found`
   - Section not in the specified course: `400 Bad Request` 
