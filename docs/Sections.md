@@ -92,7 +92,7 @@
 - **Authorized Roles:** `CREATOR`
 - **Request Type:**
   - `courseId`: int
-  ``` javascript
+  ```javascript
   {
     "name": string,
     "description": string,
