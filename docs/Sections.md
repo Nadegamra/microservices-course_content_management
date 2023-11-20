@@ -127,7 +127,9 @@
       }
 
       ```
-  - Owned course not found: `404 Not Found` 
+  - Owned course not found: `404 Not Found`
+  - Malformed request: `400 Bad Request`
+  - Not signed in: `401 Unauthorized`
 ### Update Section
   - **Short Description:** Updates an owned section
   - **URL:** `/courses/{courseId}/sections/{sectionId}`
@@ -175,6 +177,8 @@
         }
         ```
     - Owned course not found: `404 Not Found`
+    - Malformed request: `400 Bad Request`
+    - Not signed in: `401 Unauthorized`
 ### Delete Section
   - **Short Description:** Deletes the specified section
   - **URL:** `/courses/{courseId}/sections/{sectionId}`
@@ -189,3 +193,5 @@
   - **Response Codes:**
     - Successfully found course sections: `204 No Content`
     - Owned section not found: `404 Not Found`
+    - Malformed request: `400 Bad Request`
+    - Not signed in: `401 Unauthorized`
