@@ -114,7 +114,9 @@
         "isHidden": true
       }
       ```
-  - Info page not found: `404 Not Found`
+  - Section not found: `404 Not Found`
+  - Malformed request: `400 Bad Request`
+  - Not signed in: `401 Unauthorized`
   ### Update Info Page
   - **Short Description:** Updates an owned info page
   - **URL:** `/courses/{courseId}/sections/{sectionId}/infoPages/{infoPageId}`
@@ -162,6 +164,8 @@
       }
       ```
     - Info page not found: `404 Not Found`
+    - Malformed request: `400 Bad Request`
+    - Not signed in: `401 Unauthorized`
    ### Delete Info Page
   - **Short Description:** Deletes the specified info page
   - **URL:** `/courses/{courseId}/sections/{sectionId}/infoPages/{infoPageId}`
@@ -177,3 +181,4 @@
   - **Response Codes:**
     - Successfully deleted the info page: `204 No Content`
     - Info page not found: `404 Not Found`
+    - Not signed in: `401 Unauthorized`
