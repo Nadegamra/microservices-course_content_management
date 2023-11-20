@@ -193,5 +193,4 @@
   - **Response Codes:**
     - Successfully found course sections: `204 No Content`
     - Owned section not found: `404 Not Found`
-    - Malformed request: `400 Bad Request`
     - Not signed in: `401 Unauthorized`
